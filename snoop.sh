@@ -29,7 +29,7 @@ recoverFiles() # $1: start;  $2: end;  $3: extension
 			echo -n "#"
 	    	offset=$(cut -d ":" -f1 <<< "$line")
 	    	content=$(cut -d ":" -f2- <<< "$line")
-	
+
 	    	if [[ $(( offset % 2 )) == 0 ]]; then 	# ignores ‘misaligned’ matches
 	    		offset=$((offset / 2)) 				# we divide by 2 because grep interprets hexadecimal as 2 char (2 bytes)
 	    		length=$(( ${#content} / 2 )) 		# again we need to divide by 2
@@ -49,13 +49,13 @@ recoverBmp()
 			echo -n "#"
 	    	offset=$(cut -d ":" -f1 <<< "$line")
 	    	content=$(cut -d ":" -f2- <<< "$line")
-	
+
 	    	if [[ $(( offset % 2 )) == 0 ]]; then 	# ignores ‘misaligned’ matches
 	    		offset=$((offset / 2)) 				# we divide by 2 because grep interprets hexadecimal as 2 char (2 bytes)
 	    		hexlength=$(echo ${content:4:12} | tac -rs .. | echo "$(tr -d '\n')")
 	    		length=$((16#$hexlength))
 	    		$(dd if="$filename" of="$outDir""$nbFile".bmp skip="$offset" count="$length" bs=1 conv=notrunc status=none)
-	    		echo -e "$nbFile"."$3""\t\t\t$offset\t\t\t$length" >> "$outDir"audit.txt
+	    		echo -e "$nbFile".bmp"\t\t\t$offset\t\t\t$length" >> "$outDir"audit.txt
 	    		nbFile=$((nbFile+1))
 	    	fi
 		done <<< "$matches"
@@ -71,7 +71,7 @@ echo -e $menu
 read selection
 
 while [[ "$selection" != *"8"* && "$selection" != *"q"* ]]; do
-	
+
 	if [[ "$selection"  == *"1"* || "$selection" == *"6"* ]]; then
 		recoverFiles "ffd8ff" "ffd90000" "jpg"
 	fi
@@ -92,7 +92,7 @@ while [[ "$selection" != *"8"* && "$selection" != *"q"* ]]; do
 		read -p "Please enter the custom end signature of 4 hexadecimal pairs: " customEnd
 		recoverFiles "$customStart" "$customEnd" "dd"
 	fi
-	
+
 	echo -e "\n$nbFile file(s) were recovered (total)"
 	read -p "select new files to search or quit: " selection
 done
